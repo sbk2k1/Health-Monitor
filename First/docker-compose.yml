@@ -1,0 +1,33 @@
+version: "3"
+services:
+  client:
+    build:
+      context: ./client
+    depends_on:
+      - server
+    networks:
+      - my_network
+    ports:
+      - 9090:80
+
+  server:
+    build:
+      context: ./server
+    depends_on:
+      - remote
+    networks:
+      - my_network
+    ports:
+      - 9091:80
+
+  remote:
+    image: mysql:latest
+    volumes:
+      - ./remote/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - my_network
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+
+networks:
+  my_network:
