@@ -104,7 +104,6 @@ app.get('/', async (req, res) => {
       $('#createWorkspaceForm').submit(function (event) {
         event.preventDefault(); // Prevent the default form submission
         const name = $('#name').val(); // Get the value of the name input field
-        console.log(name);
         $.ajax({
           type: 'POST',
           // Send the request to the /workspaces route of your server
@@ -396,8 +395,6 @@ schedule.scheduleJob('*/10 * * * * *', async () => {
         request.times = time;
 
         // add other data to the request object
-
-        console.log(Object.keys(response.data));
 
         request.statusCode = response.output;
         request.responseSize = response.data.length;
