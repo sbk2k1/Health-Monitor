@@ -18,7 +18,10 @@ const requestSchema = new mongoose.Schema({
 });
 
 const workspaceSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+  },
   requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Request' }],
 });
 
