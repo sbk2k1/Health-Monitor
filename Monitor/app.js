@@ -355,6 +355,8 @@ schedule.scheduleJob('*/10 * * * * *', async () => {
           url: request.url,
           data: request.payload,
           //threshold: request.threshold,
+          validateStatus: false,
+          // the validation status is set to false to avoid axios throwing an error when the status code is not 200
         });
 
 
@@ -397,7 +399,7 @@ schedule.scheduleJob('*/10 * * * * *', async () => {
         // add other data to the request object
 
         request.statusCode = response.output;
-        request.responseSize = response.data.length;
+        request.responseSize = (data==undefined)?0:response.data.length;
         request.lastChecked = new Date().toISOString();
 
 
