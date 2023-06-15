@@ -131,6 +131,75 @@ app.get('/', async (req, res) => {
   }
 });
 
+// about
+
+app.get('/about', async (req, res) => {
+  return res.send(`
+  <!DOCTYPE html>
+<html>
+<head>
+    <title>About Health Monitoring App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        h2 {
+            color: #666;
+            margin-top: 30px;
+        }
+
+        p {
+            color: #777;
+            line-height: 1.5;
+        }
+
+        ul {
+            color: #777;
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>About Health Monitoring App</h1>
+    
+    <h2>Update Frequency</h2>
+    <p>The Health Monitoring App allows you to set the update frequency for retrieving and displaying the latest health data. You can customize the interval based on your preferences and needs.</p>
+
+    <h2>Request Headers</h2>
+    <p>When communicating with external APIs or servers, the app includes the following request headers:</p>
+    <ul>
+        <li>Content-Type: Specifies the type of data being sent or received. Common values include application/json, application/x-www-form-urlencoded, etc.</li>
+        <li>Accept: Indicates the preferred media types for the response. It defines the format in which the app expects the data.</li>
+        <li>User-Agent: Provides information about the user agent or client making the request. It helps identify the type of device or application used.</li>
+        <!-- Add more relevant headers here -->
+    </ul>
+
+    <h2>Request Authorization</h2>
+    <p>The Health Monitoring App may implement request authorization to ensure data security and protect user privacy. Depending on the implementation, this may involve techniques such as:</p>
+    <ul>
+        <li>API Keys: Users may be required to obtain and use an API key to access certain features or data.</li>
+        <li>OAuth: The app may support OAuth authentication to grant access to authorized third-party services or securely authenticate users.</li>
+        <li>Token-Based Authentication: A token-based authentication mechanism may be employed to verify the identity of the user making the request.</li>
+        <!-- Include any other relevant authorization methods used -->
+    </ul>
+</body>
+</html>
+
+  `);
+});
+
 
 
 // Route 2: Workspace dashboard with request data and adding new data
@@ -398,8 +467,8 @@ schedule.scheduleJob('*/10 * * * * *', async () => {
 
         // add other data to the request object
 
-        request.statusCode = response.output;
-        request.responseSize = (data==undefined)?0:response.data.length;
+        request.statusCode = response.status;
+        request.responseSize = (response.data==undefined)?0:response.data.length;
         request.lastChecked = new Date().toISOString();
 
 
