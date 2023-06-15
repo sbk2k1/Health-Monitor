@@ -9,7 +9,12 @@ const requestSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Workspace',
   },
+  threshold: Number,
   status: String,
+  times: String,
+  statusCode: String,
+  responseSize: String,
+  lastChecked: String,
 });
 
 const workspaceSchema = new mongoose.Schema({
