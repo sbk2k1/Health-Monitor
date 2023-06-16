@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Dashboard</title>
+    <style>
+        body {
+            background-color: #292929;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-top: 40px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 80px;
+        }
+
+        .form-container {
+            margin-bottom: 40px;
+        }
+
+        .form-input {
+            padding: 8px;
+            margin: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 300px;
+        }
+
+        .form-button {
+            padding: 10px 24px;
+            margin: 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            background-color: #0275d8;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .form-button:hover {
+            background-color: #025aa5;
+        }
+
+        .connection-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .connection-item {
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .connection-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .connection-details {
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>SQL Dashboard</h1>
+        <div class="form-container">
+            <form id="createConnectionForm">
+                <input type="text" id="hostInput" class="form-input" placeholder="Enter Host" required>
+                <input type="number" id="portInput" class="form-input" placeholder="Enter Port" required>
+                <input type="text" id="userInput" class="form-input" placeholder="Enter User" required>
+                <input type="password" id="passwordInput" class="form-input" placeholder="Enter Password" required>
+                <input type="text" id="databaseInput" class="form-input" placeholder="Enter Database" required>
+                <input type="number" id="thresholdInput" class="form-input" min="0" placeholder="Enter Threshold"
+                <input type="text" id="queryInput" class="form-input" placeholder="Enter Query"
+                    required>
+                <button type="submit" class="form-button">Create Connection</button>
+            </form>
+        </div>
+
+        <h2>Existing Connections:</h2>
+        <ul class="connection-list" id="connectionList"></ul>
+    </div>
+    <script>
+        // Get the form and connection list elements
+        const createConnectionForm = document.getElementById('createConnectionForm');
+        const connectionList = document.getElementById('connectionList');
+
+        // Handle form submission
+        createConnectionForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get the form input values
+            const hostInput = document.getElementById('hostInput');
+            const portInput = document.getElementById('portInput');
+            const userInput = document.getElementById('userInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const databaseInput = document.getElementById('databaseInput');
+            const thresholdInput = document.getElementById('thresholdInput');
+            const queryInput = document.getElementById('queryInput');
+
+
+            const host = hostInput.value;
+            const port = portInput.value;
+            const user = userInput.value;
+            const password = passwordInput.value;
+            const database = databaseInput.value;
+            const threshold = thresholdInput.value;
+            const query = queryInput.value;
+
+            // Create a new connection item
+            const connectionItem = document.createElement('li');
+            connectionItem.className = 'connection-item';
+
+            // Create the connection name and details elements
+            const connectionNameElement = document.createElement('div');
+            connectionNameElement.className = 'connection-name';
+            connectionNameElement.textContent = `Host: ${host}:${port}`;
+            const connectionDetailsElement = document.createElement('div');
+            connectionDetailsElement.className = 'connection-details';
+            connectionDetailsElement.textContent = `User: ${user} - Database: ${database} - Threshold: ${threshold}`;
+
+            // Append the name and details to the connection item
+            connectionItem.appendChild(connectionNameElement);
+            connectionItem.appendChild(connectionDetailsElement);
+
+            // Append the connection item to the connection list
+            connectionList.appendChild(connectionItem);
+
+            // Reset the form input values
+            hostInput.value = '';
+            portInput.value = '';
+            userInput.value = '';
+            passwordInput.value = '';
+            databaseInput.value = '';
+            thresholdInput.value = '';
+        });
+    </script>
+</body>
+
+</html>

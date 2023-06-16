@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Workspace Select</title>
+    <style>
+        body {
+            background-color: #292929;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-top: 40px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 80px;
+        }
+
+        .form-container {
+            margin-bottom: 40px;
+        }
+
+        .form-input {
+            padding: 8px;
+            margin: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 300px;
+        }
+
+        .form-button {
+            padding: 10px 24px;
+            margin: 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            background-color: #0275d8;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .form-button:hover {
+            background-color: #025aa5;
+        }
+
+        .workspace-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .workspace-item {
+            margin-bottom: 10px;
+        }
+
+        .workspace-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #6c757d;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            width: 60px;
+        }
+
+        .workspace-link:hover {
+            background-color: #525b61;
+        }
+
+        li{
+            list-style: none;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>SQL Workspace Create</h1>
+
+        <div class="form-container">
+            <form id="createWorkspaceForm">
+                <input type="text" id="workspaceNameInput" class="form-input" placeholder="Enter workspace name"
+                    required>
+                <button type="submit" class="form-button">Create Workspace</button>
+            </form>
+        </div>
+
+        <h2>Existing Workspaces:</h2>
+        <ul class="workspace-list" id="workspaceList"></ul>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Get all workspaces
+            $.ajax({
+                url: "/sql/workspaces",
+                method: "GET",
+            }).then(function (response) {
+                console.log(response);
+                // Loop through workspaces
+                for (var i = 0; i < response.length; i++) {
+                    // Create a list item for each workspace
+                    var workspaceItem = $("<li>");
+                    // Create a link for each workspace
+                    var workspaceLink = $("<a>");
+                    // Add class to link
+                    workspaceLink.addClass("workspace-link");
+                    // Add href attribute to link
+                    workspaceLink.attr("href", "/sql/dashboard/" + response[i].name);
+                    // Add text to link
+                    workspaceLink.text(response[i].name);
+                    // Append link to list item
+                    workspaceItem.append(workspaceLink);
+                    // Append list item to list
+                    $("#workspaceList").append(workspaceItem);
+                }
+            });
+
+            // Create a new workspace
+            $("#createWorkspaceForm").on("submit", function (event) {
+                event.preventDefault();
+                // Get workspace name from input
+                var workspaceName = $("#workspaceNameInput").val().trim();
+                // Create new workspace object
+                var newWorkspace = {
+                    name: workspaceName,
+                };
+                // Send POST request to create new workspace
+                $.ajax({
+                    url: "/sql/workspaces",
+                    method: "POST",
+                    data: JSON.stringify(newWorkspace),
+                    contentType: "application/json",
+                }).then(function (response) {
+                    console.log(response);
+                    // Reload page to display new workspace
+                    location.reload();
+                });
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>
