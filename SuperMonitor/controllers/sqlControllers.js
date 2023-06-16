@@ -49,7 +49,7 @@ const createWorkspace = async (req, res) => {
 
 const getConnections = async (req, res) => {
     try {
-        var workspace = await WorkspaceSql.findOne({ name: req.body.workspace });
+        var workspace = await WorkspaceSql.findOne({ name: req.params.workspace });
         var workspaceId = workspace._id;
         const connections = await ConnectionSql.find({ workspace: workspaceId});
         res.status(200).json(connections);

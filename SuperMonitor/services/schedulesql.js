@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const sql = require('mssql');
+const sql = require('mysql');
 const { ConnectionSql } = require('../models/Connection');
 
 schedule.scheduleJob('*/10 * * * * *', async () => {
@@ -8,28 +8,68 @@ schedule.scheduleJob('*/10 * * * * *', async () => {
     
     connections.forEach(async connection => {
       try {
-        const pool = await sql.connect({
-          server: connection.host,
-          port: connection.port,
+        const pool = await sql.createConnection({
+          host: connection.host,
           user: connection.user,
           password: connection.password,
           database: connection.database
         });
 
-        console.log(connection.query);
+        // record start time
 
+        const connectionStartedAt = new Date().getTime();
 
+        // run the query in sql
 
-        const result = await pool.request().query(connection.query);
+        const query = connection.query;
 
-        connection.status = 'Connected';
-        connection.statusCode = 'Success';
-        connection.responseSize = result.rowsAffected.toString();
-        connection.lastChecked = new Date().toISOString();
+        pool.query(query, (err, result) => {
+          if (err) {
+            connection.status = 'Error';
+            connection.statusCode = 'Error';
+            connection.responseSize = 'Error';
+            connection.lastChecked = new Date().toISOString();
+            connection.save();
+          } else {
+            const responseTime = new Date().getTime() - connectionStartedAt;
 
-        await connection.save();
+            if (responseTime > connection.threshold) {
+              connection.status = 'Slow';
+            } else {
+              connection.status = 'Up';
+            }
 
-        sql.close();
+            var time;
+
+            // check if connection.time.split(',').length is equal to 10
+            if (connection.times == undefined) {
+              time = responseTime;
+            }
+            // when there is not , in the times
+            else if (connection.times.split(',').length < 10) {
+              // add error to the end of the array
+              time = connection.times + ',' + responseTime;
+            }
+            // when there is , in the times
+            else {
+              // if equal to 10, remove the first element of the array and add the new response time to the end of the array
+              const times = connection.times.split(',');
+              times.shift();
+              times.push(responseTime);
+              time = times.join(',');
+            }
+
+            connection.times = time;
+
+            connection.statusCode = '200';
+            connection.responseSize = result.length;
+            connection.lastChecked = new Date().toISOString();
+
+            connection.save();
+          }
+        });
+
+        pool.end();
       } catch (error) {
         console.log(error.message);
 
