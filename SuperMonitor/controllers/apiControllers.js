@@ -49,8 +49,9 @@ const createWorkspace = async (req, res) => {
 // connection controllers
 
 const getConnections = async (req, res) => {
+    // path params
     try {
-        var workspace = await WorkspaceApi.findOne({ name: req.body.workspace });
+        var workspace = await WorkspaceApi.findOne({ name: req.params.workspace });
         var workspaceId = workspace._id;
         const connections = await ConnectionApi.find({ workspace: workspaceId});
         res.status(200).json(connections);
@@ -60,7 +61,6 @@ const getConnections = async (req, res) => {
 };
 
 const createConnection = async (req, res) => {
-
     try {
         var workspace = await WorkspaceApi.findOne({ name: req.body.workspace });
         var workspaceId = workspace._id;

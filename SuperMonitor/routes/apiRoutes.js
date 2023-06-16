@@ -19,7 +19,7 @@ router.get('/workspaces/:name', apiControllers.getWorkspaceByName);
 router.post('/workspaces', apiControllers.createWorkspace);
 
 // connection routes
-router.get('/connections', apiControllers.getConnections);
+router.get('/connections/:workspace', apiControllers.getConnections);
 router.post('/connections', apiControllers.createConnection);
 
 module.exports = router;
