@@ -65,7 +65,7 @@ const createConnection = async (req, res) => {
     try {
 
         // take care of %20 in workspace name
-        var workspace = req.body.workspace.split("%20").join(" ");
+        var workspace = req.params.workspace;
 
         workspace = await WorkspaceApi.findOne({ name: workspace });
         var workspaceId = workspace._id;

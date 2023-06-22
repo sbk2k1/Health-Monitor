@@ -3,7 +3,7 @@ const User = require("../models/user");
 
 exports.auth = async (req, res, next) => {
   if (!req.headers.authorization) {
-    return messageError(res, UNAUTHORIZED, "Authorization Required");
+    return res.status(401).json({ message: "Authorization Required" });
   }
 
   try {
@@ -11,11 +11,11 @@ exports.auth = async (req, res, next) => {
     const decoded = jwt.verify(token, "accessTokenSecret");
     const user = await User.findOne({ _id: decoded._id });
     if (!user) {
-      return messageError(res, UNAUTHORIZED, "Authorization Required");
+      return res.status(404).json({ message: "User not found" });
     }
     req.user = user;
     next();
   } catch (error) {
-    return messageError(res, UNAUTHORIZED, "Authorization Required");
+    return res.status(401).json({ message: "Invalid Token" });
   }
 };
