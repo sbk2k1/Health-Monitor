@@ -17,7 +17,7 @@ const {ConnectionSql} = require('../models/Connection');
 
 const getWorkspaces = async (req, res) => {
     try {
-        const workspaces = await WorkspaceSql.find();
+        const workspaces = await WorkspaceSql.find({user: req.user.username});
         res.status(200).json(workspaces);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -26,7 +26,7 @@ const getWorkspaces = async (req, res) => {
 
 const getWorkspaceByName = async (req, res) => {
     try {
-        const workspace = await WorkspaceSql.findOne({ name: req.params.name });
+        const workspace = await WorkspaceSql.findOne({ name: req.params.name, user: req.user.username });
         res.status(200).json(workspace);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -36,7 +36,8 @@ const getWorkspaceByName = async (req, res) => {
 const createWorkspace = async (req, res) => {
     try{
     const workspace = new WorkspaceSql({
-        name: req.body.name
+        name: req.body.name,
+        user: req.user.username
     });
     const newWorkspace = await workspace.save();
     res.status(201).json(newWorkspace);

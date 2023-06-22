@@ -18,7 +18,7 @@ const { ConnectionApi } = require('../models/Connection');
 
 const getWorkspaces = async (req, res) => {
     try {
-        const workspaces = await WorkspaceApi.find();
+        const workspaces = await WorkspaceApi.find({user: req.user.username});
         res.status(200).json(workspaces);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -27,7 +27,7 @@ const getWorkspaces = async (req, res) => {
 
 const getWorkspaceByName = async (req, res) => {
     try {
-        const workspace = await WorkspaceApi.findOne({ name: req.params.name });
+        const workspace = await WorkspaceApi.findOne({ name: req.params.name, user: req.user.username });
         res.status(200).json(workspace);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -37,7 +37,8 @@ const getWorkspaceByName = async (req, res) => {
 const createWorkspace = async (req, res) => {
     try {
         const workspace = new WorkspaceApi({
-            name: req.body.name
+            name: req.body.name,
+            user: req.user.username
         });
         const newWorkspace = await workspace.save();
         res.status(201).json(newWorkspace);
@@ -62,7 +63,11 @@ const getConnections = async (req, res) => {
 
 const createConnection = async (req, res) => {
     try {
-        var workspace = await WorkspaceApi.findOne({ name: req.body.workspace });
+
+        // take care of %20 in workspace name
+        var workspace = req.body.workspace.split("%20").join(" ");
+
+        workspace = await WorkspaceApi.findOne({ name: workspace });
         var workspaceId = workspace._id;
         const connection = new ConnectionApi({
             url: req.body.url,

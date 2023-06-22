@@ -3,6 +3,8 @@ const router = Router();
 
 const sqlControllers = require('../controllers/sqlControllers');
 
+const {auth} = require('../middlewares/auth');
+
 // worspace routes
 // create workspace
 // get all workspaces
@@ -13,12 +15,12 @@ const sqlControllers = require('../controllers/sqlControllers');
 // get all connections
 
 // workspace routes
-router.get('/workspaces', sqlControllers.getWorkspaces);
-router.get('/workspaces/:name', sqlControllers.getWorkspaceByName);
-router.post('/workspaces', sqlControllers.createWorkspace);
+router.get('/workspaces', auth, sqlControllers.getWorkspaces);
+router.get('/workspaces/:name', auth, sqlControllers.getWorkspaceByName);
+router.post('/workspaces', auth, sqlControllers.createWorkspace);
 
 // connection routes
-router.get('/connections/:workspace', sqlControllers.getConnections);
-router.post('/connections', sqlControllers.createConnection);
+router.get('/connections/:workspace', auth, sqlControllers.getConnections);
+router.post('/connections', auth, sqlControllers.createConnection);
 
 module.exports = router;

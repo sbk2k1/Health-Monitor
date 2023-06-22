@@ -8,6 +8,10 @@ const WorkspaceApiSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+    },
+    user: {
+        type: String,
+        required: true
     }
 });
 
@@ -19,6 +23,10 @@ const WorkspaceSqlSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+    },
+    user: {
+        type: String,
+        required: true
     }
 });
 

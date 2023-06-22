@@ -3,6 +3,8 @@ const router = Router();
 
 const apiControllers = require('../controllers/apiControllers');
 
+const {auth} = require('../middlewares/auth');
+
 // worspace routes
 // create workspace
 // get all workspaces
@@ -14,12 +16,12 @@ const apiControllers = require('../controllers/apiControllers');
 
 
 // workspace routes
-router.get('/workspaces', apiControllers.getWorkspaces);
-router.get('/workspaces/:name', apiControllers.getWorkspaceByName);
-router.post('/workspaces', apiControllers.createWorkspace);
+router.get('/workspaces', auth,  apiControllers.getWorkspaces);
+router.get('/workspaces/:name', auth,  apiControllers.getWorkspaceByName);
+router.post('/workspaces', auth,  apiControllers.createWorkspace);
 
 // connection routes
-router.get('/connections/:workspace', apiControllers.getConnections);
-router.post('/connections', apiControllers.createConnection);
+router.get('/connections/:workspace', auth,  apiControllers.getConnections);
+router.post('/connections', auth,  apiControllers.createConnection);
 
 module.exports = router;

@@ -1,5 +1,25 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const compression = require('compression');
+
+
+// Compression
+app.use(
+    compression({
+        level: 6,
+        threshold: 10 * 1000,
+        filter: (req, res) => {
+            if (req.headers["x-no-compression"]) {
+                return false;
+            }
+            return compression.filter(req, res);
+        },
+    }),
+);
+
+// CORS
+app.use(cors());
 
 // Database
 require("./services/db")
@@ -83,10 +103,11 @@ app.get('/sql/dashboard/:workspace', (req, res) => {
 // Routes
 const apiRoutes = require('./routes/apiRoutes');
 const sqlRoutes = require('./routes/sqlRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 app.use('/api', apiRoutes);
 app.use('/sql', sqlRoutes);
-
+app.use('/user', userRoutes);
 
 // ------------------ 404 ------------------
 
@@ -98,5 +119,5 @@ app.use((req, res) => {
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+    console.log(`Server listening on port ${PORT}`);
 });
