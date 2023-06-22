@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <meta charset="UTF-8">
+ <title>About Monitoring App</title>
+ <style>
+  body {
+   font-family: Arial, sans-serif;
+   margin: 0;
+   background-color: #333;
+   padding: 0;
+   color: #fff;
+  }
+
+  .line {
+   border-bottom: 1px solid #ccc;
+   margin-bottom: 30px;
+   margin-top: 30px;
+   width: 50%;
+   margin-left: auto;
+   margin-right: auto;
+  }
+
+  .linefull {
+   border-bottom: 1px solid #ccc;
+   margin-bottom: 30px;
+   margin-top: 30px;
+  }
+
+  header {
+   background-color: #333;
+   color: #fff;
+   padding: 20px;
+  }
+
+  nav ul {
+   list-style-type: none;
+   margin: 0;
+   padding: 0;
+  }
+
+  nav ul li {
+   display: inline-block;
+   margin-right: 10px;
+  }
+
+  nav ul li a {
+   color: #fff;
+   text-decoration: none;
+   padding: 5px;
+   transition: 0.5s all ease;
+   border-radius: 15px;
+   margin-left: 5px;
+  }
+
+  a:visited {
+   color: #fff;
+  }
+
+  /* // :visited links donot turn blue */
+
+  nav ul li a:hover {
+   background-color: #ccc;
+   color: #333;
+  }
+
+  main {
+   padding: 20px;
+  }
+
+  footer {
+   background-color: #333;
+   color: #fff;
+   padding: 20px;
+   text-align: center;
+  }
+
+  p {
+   line-height: 1.5;
+   color: #ccc;
+  }
+
+  .section {
+   margin-bottom: 30px;
+  }
+
+  .subsection {
+   margin-bottom: 20px;
+  }
+ </style>
+</head>
+
+<body>
+ <header>
+  <h1>Monitoring App Documentation</h1>
+ </header>
+
+ <nav>
+  <ul>
+   <li><a href="#introduction">Introduction</a></li>
+   <li><a href="#workspaces">Workspaces</a></li>
+   <li><a href="#connectivity">Connectivity</a></li>
+   <li><a href="#dashboards">Dashboards</a></li>
+   <li><a href="#hyperparameters">Hyperparameters</a></li>
+  </ul>
+ </nav>
+ <div class="linefull"></div>
+
+
+ <main>
+  <section id="introduction" class="section">
+   <h2>Introduction</h2>
+   <p>Provide an overview and introduction to the monitoring app.</p>
+  </section>
+
+  <div class="line"></div>
+
+  <section id="workspaces" class="section">
+   <h2>Workspaces</h2>
+   <p>A workspace is a logical grouping of monitoring configurations and data. It provides an isolated environment for
+    managing and organizing monitoring tasks. There are two types of workspaces:</p>
+   <div class="subsection">
+    <h3>API Workspace</h3>
+    <p>API workspaces allow you to monitor API endpoints. You can configure the endpoint details such as URL, request
+     headers, and polling rate.</p>
+   </div>
+   <div class="subsection">
+    <h3>SQL Workspace</h3>
+    <p>SQL workspaces enable monitoring of SQL databases. You can specify the database connection details such as host,
+     port, user, password, and database name. Additionally, you can define custom SQL queries to fetch data from the
+     database.</p>
+   </div>
+  </section>
+  <div class="line"></div>
+
+  <section id="connectivity" class="section">
+   <h2>Connectivity</h2>
+   <p>The monitoring app supports two types of connectivity:</p>
+   <div class="subsection">
+    <h3>API Connectivity</h3>
+    <p>With API connectivity, you can monitor external API endpoints. Configure the endpoint details such as URL,
+     request method, request headers, and other parameters.</p>
+   </div>
+   <div class="subsection">
+    <h3>SQL Connectivity</h3>
+    <p>SQL connectivity enables monitoring of SQL databases. Specify the database connection details such as host, port,
+     user, password, and database name to establish a connection.</p>
+   </div>
+  </section>
+  <div class="line"></div>
+
+  <section id="dashboards" class="section">
+   <h2>Dashboards</h2>
+   <p>Dashboards provide visual representations of the monitored data. You can create custom dashboards to visualize and
+    analyze the collected metrics. Dashboards can include charts, graphs, and other visualization components.</p>
+  </section>
+  <div class="line"></div>
+
+  <section id="hyperparameters" class="section">
+   <h2>Hyperparameters</h2>
+   <p>The monitoring app supports various hyperparameters for fine-tuning the monitoring process:</p>
+   <div class="subsection">
+    <h3>Scheduled Polling Rate</h3>
+    <p>You can set the frequency at which the monitoring app polls the endpoints or databases for data updates.</p>
+   </div>
+   <div class="subsection">
+    <h3>Request Headers</h3>
+    <p>For API connectivity, you can specify custom request headers to be included in the API requests.</p>
+   </div>
+   <div class="subsection">
+    <h3>SQL Queries</h3>
+    <p>In SQL workspaces, you can define custom SQL queries to fetch specific data from the connected databases.</p>
+   </div>
+  </section>
+ </main>
+ <div class="line"></div>
+
+ <footer>
+  <p>&copy; 2023 Monitoring App. All rights reserved.</p>
+ </footer>
+</body>
+
+</html>
