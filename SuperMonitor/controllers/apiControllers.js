@@ -73,7 +73,7 @@ const createConnection = async (req, res) => {
             url: req.body.url,
             requestType: req.body.requestType,
             workspace: workspaceId,
-            threshold: req.body.threshold,
+            threshold: Number(req.body.threshold),
         });
         const newConnection = await connection.save();
         res.status(201).json(newConnection);

@@ -21,6 +21,6 @@ router.post('/workspaces', auth, sqlControllers.createWorkspace);
 
 // connection routes
 router.get('/connections/:workspace', auth, sqlControllers.getConnections);
-router.post('/connections', auth, sqlControllers.createConnection);
+router.post('/connections/:workspace', auth, sqlControllers.createConnection);
 
 module.exports = router;

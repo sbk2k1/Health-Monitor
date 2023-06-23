@@ -61,16 +61,19 @@ const getConnections = async (req, res) => {
 
 const createConnection = async (req, res) => {
     try{
-        var workspace = await WorkspaceSql.findOne({ name: req.body.workspace });
-        var workspaceId = workspace._id;
+        var workspace = req.params.workspace;
+        var workspaceId = await WorkspaceSql.findOne({ name: workspace });
+
+        console.log(req.body);
+
     const connection = new ConnectionSql({
         host: req.body.host,
-        port: req.body.port,
+        port: Number(req.body.port),
         user: req.body.user,
         password: req.body.password,
         database: req.body.database,
         workspace: workspaceId,
-        threshold: req.body.threshold,
+        threshold: Number(req.body.threshold),
         query: req.body.query
     });
     const newConnection = await connection.save();
