@@ -1,27 +1,14 @@
-import React, { useState } from "react";
-import { Redirect } from "react-router-dom";
+import React, { useEffect } from "react";
+import { isUser } from "../../../api/index";
+import { Link } from "react-router-dom";
 import "./select.css";
 
 export default function Select() {
-  const [redirect, setRedirect] = useState(null);
-
-  const handleApi = async (e) => {
-    e.preventDefault();
-    setRedirect(0);
-  };
-
-  const handleSql = async (e) => {
-    e.preventDefault();
-    setRedirect(1);
-  };
-
-  if (redirect === 0) {
-    return <Redirect to="/workspaces/api" />;
-  }
-
-  if (redirect === 1) {
-    return <Redirect to="/workspaces/sql" />;
-  }
+  useEffect(() => {
+    if (!isUser()) {
+      window.location.href = "/login";
+    }
+  }, []);
 
   return (
     <div className="select-container">
@@ -31,12 +18,16 @@ export default function Select() {
         <div className="pricing-option">
           <h2>API Workspace</h2>
           <p>Work with APIs efficiently</p>
-          <button onClick={handleApi}>Select</button>
+          <Link to="/workspaces/api">
+            <button>Select</button>
+          </Link>
         </div>
         <div className="pricing-option">
           <h2>SQL Workspace</h2>
           <p>Manage SQL databases effortlessly</p>
-          <button onClick={handleSql}>Select</button>
+          <Link to="/workspaces/sql">
+            <button>Select</button>
+          </Link>
         </div>
       </div>
     </div>

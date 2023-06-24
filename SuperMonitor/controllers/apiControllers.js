@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const { WorkspaceApi } = require('../models/Workspace');
 const { ConnectionApi } = require('../models/Connection');
 

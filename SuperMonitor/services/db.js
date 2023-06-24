@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
+require("dotenv/config");
 
 // connect mongodb 
 
 const connect = async () => {
     try {
-        await mongoose.connect("mongodb://localhost:27017/monitor", {
+        await mongoose.connect(process.env.MONGO_DB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });

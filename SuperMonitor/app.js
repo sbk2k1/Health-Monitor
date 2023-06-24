@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const compression = require('compression');
+const cluster = require('cluster');
+require("dotenv/config");
 
 
 // Compression
@@ -32,19 +34,6 @@ app.use(express.static('public'));
 require('./services/scheduleapi');
 require('./services/schedulesql');
 
-// ------------------ Home ------------------
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: './views' });
-});
-
-// ------------------ About ------------------
-
-// about.html in views
-app.get('/about', (req, res) => {
-    res.sendFile('about.html', { root: './views' });
-});
-
-
 // ------------------ Documentation  ------------------
 
 // API documentation 
@@ -66,38 +55,6 @@ app.get('/about', (req, res) => {
 // /sql/connection - post - create a connection
 
 
-// ------------------ Pages ------------------
-
-// ------------------ API ------------------
-
-// 1. API Workspace page to create a workspace or go to a workspace (dashboard) from a list of workspaces
-
-app.get('/api/select', (req, res) => {
-    res.sendFile('apiSelect.html', { root: './views' });
-});
-
-// 2. API Connection page on going to a dashboard. We can create connection and monitor existing connections from here.
-
-app.get('/api/dashboard/:workspace', (req, res) => {
-    res.sendFile('apiDashboard.html', { root: './views' });
-});
-
-// ------------------ SQL ------------------
-
-// 1. SQL Workspace page to create a workspace or go to a workspace (dashboard) from a list of workspaces
-
-app.get('/sql/select', (req, res) => {
-    res.sendFile('sqlSelect.html', { root: './views' });
-});
-
-// 2. SQL Connection page on going to a dashboard. We can create connection and monitor existing connections from here.
-
-app.get('/sql/dashboard/:workspace', (req, res) => {
-    res.sendFile('sqlDashboard.html', { root: './views' });
-});
-
-
-
 // ------------------ API & SQL------------------
 
 // Routes
@@ -115,9 +72,17 @@ app.use('/user', userRoutes);
 app.use((req, res) => {
     res.status(404).send('404 Error: Page not found');
 });
+// ------------------ Cluster ------------------
 
-// Start the server
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-});
+const numCPUs = require('os').cpus().length;
+
+if(cluster.isMaster){
+    console.log(`Master ${process.pid} is running`);
+    for(let i=0; i< numCPUs;i++){
+        cluster.fork()
+    }
+} else{
+    app.listen(process.env.PORT, () => {
+        console.log(`Server ${process.pid} is running on port ${process.env.PORT}`);
+    });
+}

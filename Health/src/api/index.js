@@ -1,27 +1,27 @@
 import axios from "axios";
 import Cookies from "universal-cookie";
-
 import CryptoJS from "crypto-js";
 
-const domain = "http://localhost:3000/";
+const domain = String(process.env.REACT_APP_BACKEND_URL);
 
 const cookies = new Cookies();
-const accessTokenSecret =
-  "accessTokenSecret";
-
 // ------------------ ENCRYPTION ------------------ //
 
+// encrypt data
 // encrypt data
 export const cryptoEncrypt = (data) => {
   return CryptoJS.AES.encrypt(
     JSON.stringify(data),
-    accessTokenSecret,
+    process.env.REACT_APP_ACCESS_TOKEN_SECRET,
   ).toString();
 };
 
 // decrypt data
 export const cryptoDecrypt = (ciphertext) => {
-  var bytes = CryptoJS.AES.decrypt(ciphertext, accessTokenSecret);
+  var bytes = CryptoJS.AES.decrypt(
+    ciphertext,
+    process.env.REACT_APP_ACCESS_TOKEN_SECRET,
+  );
   return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 };
 
@@ -37,7 +37,6 @@ export const onPostData = async (url, data) => {
       },
     });
   } else {
-
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire post request
@@ -62,7 +61,6 @@ export const onPostFormData = async (url, data) => {
       },
     });
   } else {
-
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire post request
@@ -86,7 +84,6 @@ export const onGetData = async (url) => {
       },
     });
   } else {
-
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire get request
@@ -112,7 +109,6 @@ export const isUser = () => {
   if (cookies.get("data")) {
     const data = cryptoDecrypt(cookies.get("data"));
     if (data) {
-      console.log(data);
       return data;
     } else {
       return false;

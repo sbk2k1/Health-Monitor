@@ -5,11 +5,12 @@ require("dotenv/config");
 exports.cryptoEncrypt = (data) => {
   return CryptoJS.AES.encrypt(
     JSON.stringify(data),
-    "accessTokenSecret",
+    process.env.ACCESS_TOKEN_SECRET,
   ).toString();
 };
+
 exports.cryptoDecrypt = (ciphertext) => {
-  var bytes = CryptoJS.AES.decrypt(ciphertext, "accessTokenSecret");
+  var bytes = CryptoJS.AES.decrypt(ciphertext, process.env.ACCESS_TOKEN_SECRET);
   return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 };
 
@@ -17,6 +18,6 @@ exports.createToken = (data) => {
   // jwt expires in 1 hour
   const time = "10h";
 
-  const token = jwt.sign(data, "accessTokenSecret", { expiresIn: time });
+  const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: time });
   return token;
 };

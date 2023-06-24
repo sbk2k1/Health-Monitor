@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const {WorkspaceSql} = require('../models/Workspace');
 const {ConnectionSql} = require('../models/Connection');
 

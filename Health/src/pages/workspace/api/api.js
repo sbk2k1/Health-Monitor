@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import { onGetData, onPostData, isUser } from "../../../api";
 import "./api.css";
 const { useNotifications } = require("../../../context/NotificationContext");
 
 export default function Api() {
-  const [redirect, setRedirect] = useState(null);
   const [logout, setLogout] = useState(false);
   const [workspaces, setWorkspaces] = useState([]);
   const [page, setPage] = useState("select");
@@ -24,23 +23,22 @@ export default function Api() {
     try {
       const res = await onGetData("api/workspaces");
       if (res.status === 200) {
-        setWorkspaces(res.data);
+        if (res.data.length === 0) {
+          createNotification("info", "You don't have any connections", "Info");
+          setWorkspaces(null);
+        } else {
+          setWorkspaces(res.data);
+          createNotification("success", "API Workspaces loaded", "Success");
+        }
       } else {
         alert(res.data.message);
       }
     } catch (err) {
-      console.log(err);
+      if (err.request) {
+        createNotification("error", "Server is not responding", "Error");
+      }
     }
   };
-
-  const handleWorkspace = async (e) => {
-    e.preventDefault();
-    setRedirect(e.target.id);
-  };
-
-  if (redirect) {
-    return <Redirect to={"/dashboard/api/" + redirect} />;
-  }
 
   if (logout) {
     return <Redirect to="/login" />;
@@ -86,15 +84,22 @@ export default function Api() {
         <div className="choice">
           <br />
           <h3>Choose a workspace</h3>
-          {workspaces.map((workspace) => (
-            <button
-              id={workspace.name}
-              onClick={handleWorkspace}
-              key={workspace.name}
-            >
-              {workspace.name}
-            </button>
-          ))}
+
+          {!workspaces && (
+            <>
+              <br />
+              <p>You don't have any workspaces</p>
+            </>
+          )}
+
+          {workspaces &&
+            workspaces.map((workspace) => (
+              <Link to={`/dashboard/api/${workspace.name}`}>
+                <button id={workspace.name} key={workspace.name}>
+                  {workspace.name}
+                </button>
+              </Link>
+            ))}
         </div>
       )}
 
