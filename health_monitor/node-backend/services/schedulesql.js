@@ -1,6 +1,6 @@
 const schedule = require('node-schedule');
 const sql = require('mysql');
-const { ConnectionSql } = require('../models/Connection');
+const { ConnectionSql } = require('../models/connection');
 
 schedule.scheduleJob('*/10 * * * * *', async () => {
   try {

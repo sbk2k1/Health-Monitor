@@ -1,6 +1,6 @@
 const axios = require('axios');
 const schedule = require('node-schedule');
-const { ConnectionApi } = require('../models/Connection');
+const { ConnectionApi } = require('../models/connection');
 
 axios.interceptors.request.use(x => {
     // to avoid overwriting if another interceptor

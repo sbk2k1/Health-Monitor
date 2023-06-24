@@ -1,6 +1,6 @@
 const express = require('express');
-const { WorkspaceApi } = require('../models/Workspace');
-const { ConnectionApi } = require('../models/Connection');
+const { WorkspaceApi } = require('../models/workspace');
+const { ConnectionApi } = require('../models/connection');
 
 // Add API Controllers here
 

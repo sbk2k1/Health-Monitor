@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const register = async (req, res) => {
     try {
-
+        console.log("request received")
         // hash the password
         const hash_password = await bcrypt.hash(req.body.password, 10);
 
@@ -21,7 +21,7 @@ const register = async (req, res) => {
         });
         return res.status(201).json({ token, username: newUser.username });
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: err });
     }
 }
 

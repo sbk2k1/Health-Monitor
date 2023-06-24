@@ -1,6 +1,6 @@
 const express = require('express');
-const {WorkspaceSql} = require('../models/Workspace');
-const {ConnectionSql} = require('../models/Connection');
+const {WorkspaceSql} = require('../models/workspace');
+const {ConnectionSql} = require('../models/connection');
 
 // Add SQL endpoint routes here
 
