@@ -31,7 +31,7 @@ services:
     depends_on:
       - node-backend
     ports:
-      - 1234:80
+      - 1234:3000
     networks:
       - my-network
     environment:
