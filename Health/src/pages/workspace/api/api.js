@@ -83,8 +83,8 @@ export default function Api() {
       </button>
 
       {page === "select" && (
-        <div>
-      <br />
+        <div className="choice">
+          <br />
           <h3>Choose a workspace</h3>
           {workspaces.map((workspace) => (
             <button
@@ -99,10 +99,9 @@ export default function Api() {
       )}
 
       {page === "create" && (
-        <div className="text-center">
-      <br />
-          <h1>Create API Workspace</h1>
-          <h3>Enter the name for the API workspace</h3>
+        <div className="text-center choice">
+          <br />
+          <h3>Create API Workspace</h3>
           <form onSubmit={handleSubmit}>
             <input
               type="text"

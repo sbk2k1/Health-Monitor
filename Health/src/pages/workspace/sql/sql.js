@@ -83,7 +83,7 @@ export default function Sql() {
             </button>
 
             {page === "select" && (
-                <div>
+                <div className="choice">
                     <br />
                     <h3>Choose a workspace</h3>
                     {workspaces.map((workspace) => (
@@ -99,10 +99,9 @@ export default function Sql() {
             )}
 
             {page === "create" && (
-                <div className="text-center">
+                <div className="text-center choice">
                     <br />
-                    <h1>Create SQL Workspace</h1>
-                    <h3>Enter the name for the SQL workspace</h3>
+                    <h3>Create SQL Workspace</h3>
                     <form onSubmit={handleSubmit}>
                         <input
                             type="text"

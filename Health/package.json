@@ -5,8 +5,10 @@
   "dependencies": {
     "@loadable/component": "^5.15.2",
     "axios": "^1.1.2",
+    "chart.js": "^3.3.2",
     "crypto-js": "^4.1.1",
     "react": "^16.8.6",
+    "react-chartjs-2": "^3.0.3",
     "react-dom": "^16.8.6",
     "react-notifications": "^1.7.4",
     "react-parallax-tilt": "^1.7.88",

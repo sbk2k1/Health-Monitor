@@ -1,0 +1,250 @@
+import React, { useState, useEffect, useRef } from "react";
+import { Redirect } from "react-router-dom";
+import { onGetData, isUser, onPostData } from "../../../api";
+import { useNotifications } from "../../../context/NotificationContext";
+import "./api.css";
+import { Line } from "react-chartjs-2";
+
+export default function Api(props) {
+    const [logout, setLogout] = useState(false);
+    const [connections, setConnections] = useState([]);
+    const [url, setUrl] = useState("");
+    const [method, setMethod] = useState("");
+    const [threshold, setThreshold] = useState(null);
+    const [page, setPage] = useState("dashboard");
+    // useref hook for current active connection
+    const active = useRef(null);
+
+
+    const { createNotification } = useNotifications();
+
+    useEffect(() => {
+        if (!isUser()) {
+            console.log("not logged in");
+            setLogout(true);
+        }
+        getConnections();
+
+        const interval = setInterval(() => {
+            getConnections();
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
+    const getConnections = async () => {
+        try {
+            const res = await onGetData("api/connections/" + props.match.params.name);
+
+            // here active state is reset to null on each interval because of the way useEffect works
+            // to prevent this, we can use a useRef hook
+
+            if (res.status === 200) {
+                setConnections(res.data);
+                if (active.current === null) {
+                    active.current = res.data[0];
+                    // add active-button class to first button
+                    document.getElementsByClassName("connection")[0].firstChild.classList.add("active-button");
+                } else {
+                    // if active connection is not null, check if it is in the new connections array
+                    // if it is, set active to that connection
+                    // else set active to the first connection in the array
+                    if (res.data.some(connection => connection.url === active.current.url)) {
+                        active.current = res.data.find(connection => connection.url === active.current.url);
+                    } else {
+                        active.current = res.data[0];
+                    }
+                }
+            } else {
+                alert(res.data.message);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    if (logout) {
+        return <Redirect to="/login" />;
+    }
+
+    const handleUrl = (e) => {
+        e.preventDefault();
+        setUrl(e.target.value);
+    };
+
+    const handleMethod = (e) => {
+        e.preventDefault();
+        setMethod(e.target.value);
+    };
+
+    const handleThreshold = (e) => {
+        e.preventDefault();
+        setThreshold(e.target.value);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await onPostData("api/connections/" + props.match.params.name, {
+                url: url,
+                requestType: method,
+                threshold: threshold,
+            });
+
+            if (res.status === 201) {
+                window.location.reload();
+            } else {
+                createNotification("error", res.data);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const handleConnection = (event, connection) => {
+        active.current = connection;
+        // search for button with both active-button and connection-button classes
+        // remove active-button class from that button
+        document.getElementsByClassName("active-button connection-button")[0].classList.remove("active-button");
+
+
+        // add active-button class to clicked button
+        event.target.classList.add("active-button");
+
+    };
+
+    return (
+        <div className="text-center">
+            <h1>API Connections</h1>
+
+            <button
+                onClick={() => {
+                    setPage("dashboard");
+                }}
+                className={page === "dashboard" ? "active-button" : ""}
+            >
+                Dashboard
+            </button>
+            <button
+                onClick={() => {
+                    setPage("create");
+                }}
+                className={page === "create" ? "active-button" : ""}
+            >
+                Create Connection
+            </button>
+
+            {page === "dashboard" && (
+                <div className="choice">
+                    <h3>Choose a connection</h3>
+                    <div className="connections">
+                        <div className="connection">
+                            {connections.map((connection, index) => (
+                                <button
+                                    key={index}
+                                    onClick={(e) => {
+                                        handleConnection(e, connection);
+                                    }}
+                                    className="connection-button"
+                                >
+                                    {connection.url}
+                                </button>
+                            ))}
+                        </div>
+                        {active.current && (
+                            <div className="data">
+                                <div className="graph">
+                                    {active.current.times && <Line
+                                        data={{
+                                            labels: ["-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0"],
+                                            datasets: [
+                                                {
+                                                    label: active.current.url,
+                                                    data: active.current.times.split(",").map((time) => parseInt(time)),
+                                                    fill: false,
+                                                    backgroundColor: "rgb(255, 99, 132)",
+                                                    borderColor: "rgba(255, 99, 132, 0.2)",
+                                                },
+                                                // straight line at threshold
+                                                {
+                                                    label: "Threshold",
+                                                    data: Array(10).fill(active.current.threshold),
+                                                    fill: false,
+                                                    backgroundColor: "rgb(255, 99, 132)",
+                                                    //red border
+                                                    borderColor: "rgba(225, 99, 132, 0.2)",
+                                                },
+                                            ],
+                                        }}
+                                        options={{
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    // y goes from 0 to 1500
+                                                    max: 1600,
+                                                },
+                                            },
+                                        }}
+                                    />}
+
+                                    {!active.current.times && <p className="graph">No Connection Established</p>}
+
+                                </div>
+                                <div className="details">
+                                    <h3>Graph For</h3>
+                                    <br />
+                                    <p><strong>URL:</strong> {active.current.url}</p>
+                                    <p><strong>Method:</strong> {active.current.requestType}</p>
+                                    <p><strong>Threshold:</strong> {active.current.threshold}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {page === "create" && (
+                <div className="choice">
+                    <h3>Create Connection</h3>
+                    <form onSubmit={handleSubmit}>
+                        <input
+                            type="text"
+                            value={url}
+                            onChange={handleUrl}
+                            className="form-input"
+                            placeholder="URL"
+                        />
+
+                        <select
+                            id="method"
+                            className="form-input"
+                            required
+                            onChange={handleMethod}
+                            placeholder="Method"
+                        >
+                            <option value="" disabled selected>
+                                Select Method
+                            </option>
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+
+                        <input
+                            type="number"
+                            value={threshold}
+                            onChange={handleThreshold}
+                            className="form-input"
+                            placeholder="Threshold"
+                        />
+
+                        <input type="submit" value="Submit" className="form-button" />
+                    </form>
+                </div>
+            )}
+        </div>
+    );
+}
