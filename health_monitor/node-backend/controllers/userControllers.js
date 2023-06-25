@@ -26,6 +26,7 @@ const register = async (req, res) => {
 }
 
 const login = async (req, res) => {
+    console.log("login request received")
     try {
         // needs on username and password
         if (!req.body.username || !req.body.password) {

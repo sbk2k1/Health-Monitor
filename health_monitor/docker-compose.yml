@@ -34,11 +34,14 @@ services:
       - node-backend
     ports:
       - 1234:3000
+    expose:
+      - 3000
+    links:
+      - node-backend
     networks:
       - my-network
     environment:
       - REACT_APP_ACCESS_TOKEN_SECRET=${REACT_APP_ACCESS_TOKEN_SECRET}
-      - REACT_APP_BACKEND_URL=http://node-backend:${PORT}/
 
 networks:
   my-network:

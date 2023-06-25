@@ -2,8 +2,6 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 import CryptoJS from "crypto-js";
 
-const domain = String(process.env.REACT_APP_BACKEND_URL);
-
 const cookies = new Cookies();
 // ------------------ ENCRYPTION ------------------ //
 
@@ -28,12 +26,10 @@ export const cryptoDecrypt = (ciphertext) => {
 // ------------------ API CALLING ------------------ //
 export const onPostData = async (url, data) => {
   // get token from cookie named token and set in header
-
-console.log("domain", domain+url);
-
+  console.log("domain is not needed");
 
   if (!cookies.get("data")) {
-    return await axios.post(domain + url, data, {
+    return await axios.post("/" + url, data, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "POST",
@@ -43,7 +39,7 @@ console.log("domain", domain+url);
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire post request
-    return await axios.post(domain + url, data, {
+    return await axios.post("/" + url, data, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "POST",
@@ -57,7 +53,7 @@ export const onPostFormData = async (url, data) => {
   // get token from cookie named data and set in header
 
   if (!cookies.get("data")) {
-    return await axios.post(domain + url, data, {
+    return await axios.post("/" + url, data, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Access-Control-Allow-Methods": "POST",
@@ -67,7 +63,7 @@ export const onPostFormData = async (url, data) => {
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire post request
-    return await axios.post(domain + url, data, {
+    return await axios.post("/" + url, data, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Access-Control-Allow-Methods": "POST",
@@ -80,7 +76,7 @@ export const onPostFormData = async (url, data) => {
 export const onGetData = async (url) => {
   // get token from cookie named token and set in header
   if (!cookies.get("data")) {
-    return await axios.get(domain + url, {
+    return await axios.get("/" + url, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
@@ -90,7 +86,7 @@ export const onGetData = async (url) => {
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire get request
-    return await axios.get(domain + url, {
+    return await axios.get("/" + url, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
