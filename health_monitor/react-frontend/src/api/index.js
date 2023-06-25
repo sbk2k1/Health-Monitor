@@ -29,7 +29,7 @@ export const cryptoDecrypt = (ciphertext) => {
 export const onPostData = async (url, data) => {
   // get token from cookie named token and set in header
 
-console.log("domain", domain);
+console.log("domain", domain+url);
 
 
   if (!cookies.get("data")) {

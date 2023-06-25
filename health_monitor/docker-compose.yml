@@ -13,8 +13,10 @@ services:
       context: ./node-backend
     depends_on:
       - mongodb
+    expose:
+      - ${PORT}
     ports:
-      - ${PORT}:${PORT}
+      - 9876:${PORT}
     networks:
       - my-network
     volumes:
@@ -36,7 +38,7 @@ services:
       - my-network
     environment:
       - REACT_APP_ACCESS_TOKEN_SECRET=${REACT_APP_ACCESS_TOKEN_SECRET}
-      - REACT_APP_BACKEND_URL=${BACKEND_URL}:${PORT}/
+      - REACT_APP_BACKEND_URL=http://node-backend:${PORT}/
 
 networks:
   my-network:
