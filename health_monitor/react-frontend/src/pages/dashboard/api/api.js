@@ -4,7 +4,7 @@ import { onGetData, isUser, onPostData } from "../../../api";
 import { useNotifications } from "../../../context/NotificationContext";
 import "./api.css";
 import { Line } from "react-chartjs-2";
-import { Dna } from "react-loader-spinner";
+import { Dna,  } from "react-loader-spinner";
 
 export default function Api(props) {
   const [logout, setLogout] = useState(false);
@@ -54,10 +54,6 @@ export default function Api(props) {
         }
         if (active.current === null) {
           active.current = res.data[0];
-          // add active-button class to first button
-          document
-            .getElementsByClassName("connection")[0]
-            .firstChild.classList.add("active-button");
         } else {
           // if active connection is not null, check if it is in the new connections array
           // if it is, set active to that connection
@@ -139,9 +135,11 @@ export default function Api(props) {
     active.current = connection;
     // search for button with both active-button and connection-button classes
     // remove active-button class from that button
+    if(document.getElementsByClassName("active-button connection-button")[0]){
     document
       .getElementsByClassName("active-button connection-button")[0]
       .classList.remove("active-button");
+    }
 
     // add active-button class to clicked button
     event.target.classList.add("active-button");
@@ -201,7 +199,12 @@ export default function Api(props) {
                       onClick={(e) => {
                         handleConnection(e, connection);
                       }}
-                      className="connection-button"
+                      // make first button active by default
+                      className={
+                        index === 0
+                          ? "active-button connection-button"
+                          : "connection-button"
+                      }
                     >
                       {connection.url}
                     </button>
@@ -214,15 +217,15 @@ export default function Api(props) {
                       <Line
                         data={{
                           labels: [
-                            "-9",
-                            "-8",
-                            "-7",
-                            "-6",
-                            "-5",
-                            "-4",
-                            "-3",
-                            "-2",
-                            "-1",
+                            "T-9",
+                            "T-8",
+                            "T-7",
+                            "T-6",
+                            "T-5",
+                            "T-4",
+                            "T-3",
+                            "T-2",
+                            "T-1",
                             "0",
                           ],
                           datasets: [
@@ -232,17 +235,20 @@ export default function Api(props) {
                                 .split(",")
                                 .map((time) => parseInt(time)),
                               fill: false,
-                              backgroundColor: "rgb(255, 99, 132)",
-                              borderColor: "rgba(255, 99, 132, 0.2)",
+                              backgroundColor: "rgb(0, 99, 132)",
+                              borderColor: "rgba(0, 99, 132, 0.2)",
                             },
                             // straight line at threshold
                             {
                               label: "Threshold",
                               data: Array(10).fill(active.current.threshold),
                               fill: false,
-                              backgroundColor: "rgb(255, 99, 132)",
-                              //red border
-                              borderColor: "rgba(225, 99, 132, 0.2)",
+                              backgroundColor: "rgb(255, 0, 132)",
+                              borderColor: "rgba(255, 0, 132, 1)",
+                              // make threshold line dashed
+                              borderDash: [5, 5],
+                              //remove point on threshold line
+                              pointRadius: 0,
                             },
                           ],
                         }}
@@ -251,7 +257,7 @@ export default function Api(props) {
                             y: {
                               beginAtZero: true,
                               // y goes from 0 to 1500
-                              max: 1600,
+                              max: 2000,
                             },
                           },
                         }}

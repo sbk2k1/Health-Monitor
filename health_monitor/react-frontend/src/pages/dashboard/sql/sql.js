@@ -10,8 +10,12 @@ export default function Api(props) {
   const [logout, setLogout] = useState(false);
   const [redirect, setRedirect] = useState(false);
   const [connections, setConnections] = useState([]);
-  const [url, setUrl] = useState("");
-  const [method, setMethod] = useState("");
+  const [host, setHost] = useState("");
+  const [database, setDatabase] = useState("");
+  const [port, setPort] = useState("");
+  const [user, setUser] = useState("");
+  const [password, setPassword] = useState("");
+  const [query, setQuery] = useState("");
   const [threshold, setThreshold] = useState(null);
   const [page, setPage] = useState("dashboard");
 
@@ -54,19 +58,15 @@ export default function Api(props) {
         }
         if (active.current === null) {
           active.current = res.data[0];
-          // add active-button class to first button
-          document
-            .getElementsByClassName("connection")[0]
-            .firstChild.classList.add("active-button");
         } else {
           // if active connection is not null, check if it is in the new connections array
           // if it is, set active to that connection
           // else set active to the first connection in the array
           if (
-            res.data.some((connection) => connection.url === active.current.url)
+            res.data.some((connection) => connection.database === active.current.database && connection.host === active.current.host && connection.port === active.current.port && connection.query === active.current.query)
           ) {
             active.current = res.data.find(
-              (connection) => connection.url === active.current.url,
+              (connection) => connection.database === active.current.database && connection.host === active.current.host && connection.port === active.current.port && connection.query === active.current.query,
             );
           } else {
             active.current = res.data[0];
@@ -98,14 +98,34 @@ export default function Api(props) {
     return <Redirect to={redirect} />;
   }
 
-  const handleUrl = (e) => {
+  const handHost = (e) => {
     e.preventDefault();
-    setUrl(e.target.value);
+    setHost(e.target.value);
   };
 
-  const handleMethod = (e) => {
+  const handleDatabase = (e) => {
     e.preventDefault();
-    setMethod(e.target.value);
+    setDatabase(e.target.value);
+  };
+
+  const handlePort = (e) => {
+    e.preventDefault();
+    setPort(e.target.value);
+  };
+
+  const handleUser = (e) => {
+    e.preventDefault();
+    setUser(e.target.value);
+  };
+
+  const handlePassword = (e) => {
+    e.preventDefault();
+    setPassword(e.target.value);
+  };
+
+  const handleQuery = (e) => {
+    e.preventDefault();
+    setQuery(e.target.value);
   };
 
   const handleThreshold = (e) => {
@@ -119,9 +139,13 @@ export default function Api(props) {
       const res = await onPostData(
         "sql/connections/" + props.match.params.name,
         {
-          url: url,
-          requestType: method,
-          threshold: threshold,
+          host,
+          database,
+          port,
+          user,
+          password,
+          query,
+          threshold,
         },
       );
 
@@ -139,9 +163,11 @@ export default function Api(props) {
     active.current = connection;
     // search for button with both active-button and connection-button classes
     // remove active-button class from that button
-    document
-      .getElementsByClassName("active-button connection-button")[0]
-      .classList.remove("active-button");
+    if(document.getElementsByClassName("active-button connection-button")[0]){
+      document
+        .getElementsByClassName("active-button connection-button")[0]
+        .classList.remove("active-button");
+      }
 
     // add active-button class to clicked button
     event.target.classList.add("active-button");
@@ -149,7 +175,7 @@ export default function Api(props) {
 
   return (
     <div className="text-center">
-      <h1>API Connections</h1>
+      <h1>SQL Connections</h1>
 
       <button
         onClick={() => {
@@ -201,7 +227,12 @@ export default function Api(props) {
                       onClick={(e) => {
                         handleConnection(e, connection);
                       }}
-                      className="connection-button"
+                      // make first button active by default
+                      className={
+                        index === 0
+                          ? "active-button connection-button"
+                          : "connection-button"
+                      }
                     >
                       {connection.database}
                     </button>
@@ -214,15 +245,15 @@ export default function Api(props) {
                       <Line
                         data={{
                           labels: [
-                            "-9",
-                            "-8",
-                            "-7",
-                            "-6",
-                            "-5",
-                            "-4",
-                            "-3",
-                            "-2",
-                            "-1",
+                            "T-9",
+                            "T-8",
+                            "T-7",
+                            "T-6",
+                            "T-5",
+                            "T-4",
+                            "T-3",
+                            "T-2",
+                            "T-1",
                             "0",
                           ],
                           datasets: [
@@ -232,17 +263,20 @@ export default function Api(props) {
                                 .split(",")
                                 .map((time) => parseInt(time)),
                               fill: false,
-                              backgroundColor: "rgb(255, 99, 132)",
-                              borderColor: "rgba(255, 99, 132, 0.2)",
+                              backgroundColor: "rgb(0, 99, 132)",
+                              borderColor: "rgba(0, 99, 132, 0.2)",
                             },
                             // straight line at threshold
                             {
                               label: "Threshold",
                               data: Array(10).fill(active.current.threshold),
                               fill: false,
-                              backgroundColor: "rgb(255, 99, 132)",
-                              //red border
-                              borderColor: "rgba(225, 99, 132, 0.2)",
+                              backgroundColor: "rgb(255, 0, 132)",
+                              borderColor: "rgba(255, 0, 132, 1)",
+                              // make threshold line dashed
+                              borderDash: [5, 5],
+                              //remove point on threshold line
+                              pointRadius: 0,
                             },
                           ],
                         }}
@@ -251,7 +285,7 @@ export default function Api(props) {
                             y: {
                               beginAtZero: true,
                               // y goes from 0 to 1500
-                              max: 1600,
+                              max: active.current.threshold * 4,
                             },
                           },
                         }}
@@ -265,15 +299,10 @@ export default function Api(props) {
                   <div className="details">
                     <h3>Graph For</h3>
                     <br />
-                    <p>
-                      <strong>URL:</strong> {active.current.database}
-                    </p>
-                    <p>
-                      <strong>Method:</strong> {active.current.query}
-                    </p>
-                    <p>
-                      <strong>Threshold:</strong> {active.current.threshold}
-                    </p>
+                    <p>Host: {active.current.host}</p>
+                    <p>Database: {active.current.database}</p>
+                    <p>Port: {active.current.port}</p>
+                    <p>Query: {active.current.query}</p>
                   </div>
                 </div>
               )}
@@ -286,36 +315,75 @@ export default function Api(props) {
         <div className="choice">
           <h3>Create Connection</h3>
           <form onSubmit={handleSubmit}>
+            
+            {/* we need host, database, port, user, password and query and threshold for sql */}
+
             <input
               type="text"
-              value={url}
-              onChange={handleUrl}
+              id="host"
+              name="host"
+              placeholder="Enter Host"
+              onChange={handHost}
+              required
               className="form-input"
-              placeholder="URL"
             />
 
-            <select
-              id="method"
-              className="form-input"
+            <input
+              type="text"
+              id="database"
+              name="database"
+              placeholder="Enter Database"
+              onChange={handleDatabase}
               required
-              onChange={handleMethod}
-              placeholder="Method"
-            >
-              <option value="" disabled selected>
-                Select Method
-              </option>
-              <option value="GET">GET</option>
-              <option value="POST">POST</option>
-              <option value="PUT">PUT</option>
-              <option value="DELETE">DELETE</option>
-            </select>
+              className="form-input"
+            />
+            <input
+              type="text"
+              id="port"
+              name="port"
+              placeholder="Enter Port"
+              onChange={handlePort}
+              required
+              className="form-input"
+            />
 
             <input
-              type="number"
-              value={threshold}
-              onChange={handleThreshold}
+              type="text"
+              id="user"
+              name="user"
+              placeholder="Enter User"
+              onChange={handleUser}
+              required
               className="form-input"
-              placeholder="Threshold"
+            />
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter Password"
+              onChange={handlePassword}
+              required
+              className="form-input"
+            />
+
+            <input
+              type="text"
+              id="query"
+              name="query"
+              placeholder="Enter Query"
+              onChange={handleQuery}
+              required
+              className="form-input"
+            />
+
+            <input
+              type="text"
+              id="threshold"
+              name="threshold"
+              placeholder="Enter Threshold"
+              onChange={handleThreshold}
+              required
+              className="form-input"
             />
 
             <input type="submit" value="Submit" className="form-button" />
