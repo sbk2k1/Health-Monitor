@@ -75,7 +75,7 @@ export default function Api(props) {
     } catch (err) {
       if (
         err.response &&
-        err.response.data.message ==
+        err.response.data.message ===
           "Cannot read properties of null (reading '_id')"
       ) {
         createNotification("error", "No Such Workspace Found", "Error");
