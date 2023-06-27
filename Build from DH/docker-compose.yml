@@ -16,8 +16,6 @@ services:
       - 9876:${PORT}
     networks:
       - my-network
-    volumes:
-      - ./node-backend/config/mongodb-url.txt:/app/config/mongodb-url.txt:ro
     environment:
       - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
       - JWT_SECRET=${JWT_SECRET}
