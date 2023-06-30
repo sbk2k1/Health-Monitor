@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Redirect } from "react-router-dom";
-import { onGetData, isUser, onPostData, onDeleteData } from "../../../api";
+import {
+  onGetData,
+  isUser,
+  onPostData,
+  onDeleteData,
+  removeData,
+} from "../../../api";
 import { useNotifications } from "../../../context/NotificationContext";
 import "./api.css";
 import { Line } from "react-chartjs-2";
-import { Dna, } from "react-loader-spinner";
+import { Dna } from "react-loader-spinner";
 
 export default function Api(props) {
   const [logout, setLogout] = useState(false);
@@ -74,15 +80,16 @@ export default function Api(props) {
         createNotification("Connection Already exists");
         // refresh page
         window.location.reload();
-      }
-      else {
+      } else {
         createNotification("error", res.data);
       }
     } catch (err) {
-      if (
+      if (err.response && err.response.status === 401) {
+        removeData();
+      } else if (
         err.response &&
         err.response.data.message ===
-        "Cannot read properties of null (reading '_id')"
+          "Cannot read properties of null (reading '_id')"
       ) {
         createNotification("error", "No Such Workspace Found", "Error");
         setRedirect("/workspaces/api");
@@ -138,13 +145,11 @@ export default function Api(props) {
       } else {
         createNotification("error", res.data);
       }
-
-
-
     } catch (err) {
-
-      createNotification("error", err.response.data.message)
-
+      if (err.response && err.response.status === 401) {
+        removeData();
+      }
+      createNotification("error", err.response.data.message);
     }
   };
 
@@ -166,16 +171,26 @@ export default function Api(props) {
     e.preventDefault();
     try {
       const res = await onDeleteData(
-        "api/connections/" + props.match.params.name + "?url=" + url + "&method=" + requestType
+        "api/connections/" +
+          props.match.params.name +
+          "?url=" +
+          url +
+          "&method=" +
+          requestType,
       );
 
       if (res.status === 200) {
         // rempve deleted connection from connections array
-        setConnections((connections) => connections.filter((connection) => connection.url !== url));
+        setConnections((connections) =>
+          connections.filter((connection) => connection.url !== url),
+        );
       } else {
         createNotification("error", res.data);
       }
     } catch (err) {
+      if (err.response && err.response.status === 401) {
+        removeData();
+      }
       createNotification("error", err.response.data.message);
     }
   };
@@ -264,8 +279,10 @@ export default function Api(props) {
                             // if numOfTimes is 5, labels will be -4, -3, -2, -1, 0
                             ...Array(active.current.numOfTimes)
                               .fill()
-                              .map((_, index) => index - active.current.numOfTimes + 1),
-
+                              .map(
+                                (_, index) =>
+                                  index - active.current.numOfTimes + 1,
+                              ),
                           ],
                           datasets: [
                             {
@@ -282,7 +299,9 @@ export default function Api(props) {
                             // straight line at threshold
                             {
                               label: "Threshold",
-                              data: Array(active.current.numOfTimes).fill(active.current.threshold),
+                              data: Array(active.current.numOfTimes).fill(
+                                active.current.threshold,
+                              ),
                               fill: false,
                               backgroundColor: "rgb(255, 0, 132)",
                               borderColor: "rgba(255, 0, 132, 1)",
@@ -411,7 +430,10 @@ export default function Api(props) {
                   connections.map((connection, index) => (
                     <button
                       key={index}
-                      onClick={handleDelete(connection.url, connection.requestType)}
+                      onClick={handleDelete(
+                        connection.url,
+                        connection.requestType,
+                      )}
                       className="connection-button"
                     >
                       {connection.url}

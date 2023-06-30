@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Redirect } from "react-router-dom";
-import { onGetData, isUser, onPostData } from "../../../api";
+import {
+  onGetData,
+  isUser,
+  onPostData,
+  onDeleteData,
+  removeData,
+} from "../../../api";
 import { useNotifications } from "../../../context/NotificationContext";
 import "./sql.css";
 import { Line } from "react-chartjs-2";
@@ -12,10 +18,10 @@ export default function Api(props) {
   const [connections, setConnections] = useState([]);
   const [host, setHost] = useState("");
   const [database, setDatabase] = useState("");
-  const [port, setPort] = useState("");
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [query, setQuery] = useState("");
+  const [numOfTimes, setNumOfTimes] = useState();
   const [threshold, setThreshold] = useState(null);
   const [page, setPage] = useState("dashboard");
 
@@ -63,10 +69,20 @@ export default function Api(props) {
           // if it is, set active to that connection
           // else set active to the first connection in the array
           if (
-            res.data.some((connection) => connection.database === active.current.database && connection.host === active.current.host && connection.port === active.current.port && connection.query === active.current.query)
+            res.data.some(
+              (connection) =>
+                connection.database === active.current.database &&
+                connection.host === active.current.host &&
+                connection.port === active.current.port &&
+                connection.query === active.current.query,
+            )
           ) {
             active.current = res.data.find(
-              (connection) => connection.database === active.current.database && connection.host === active.current.host && connection.port === active.current.port && connection.query === active.current.query,
+              (connection) =>
+                connection.database === active.current.database &&
+                connection.host === active.current.host &&
+                connection.port === active.current.port &&
+                connection.query === active.current.query,
             );
           } else {
             active.current = res.data[0];
@@ -77,7 +93,9 @@ export default function Api(props) {
         createNotification("error", res.data);
       }
     } catch (err) {
-      if (
+      if (err.response && err.response.status === 401) {
+        removeData();
+      } else if (
         err.response &&
         err.response.data.message ===
           "Cannot read properties of null (reading '_id')"
@@ -108,11 +126,6 @@ export default function Api(props) {
     setDatabase(e.target.value);
   };
 
-  const handlePort = (e) => {
-    e.preventDefault();
-    setPort(e.target.value);
-  };
-
   const handleUser = (e) => {
     e.preventDefault();
     setUser(e.target.value);
@@ -133,6 +146,11 @@ export default function Api(props) {
     setThreshold(e.target.value);
   };
 
+  const handleNumOfTimes = (e) => {
+    e.preventDefault();
+    setNumOfTimes(e.target.value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -141,11 +159,11 @@ export default function Api(props) {
         {
           host,
           database,
-          port,
           user,
           password,
           query,
           threshold,
+          numOfTimes,
         },
       );
 
@@ -155,8 +173,12 @@ export default function Api(props) {
         createNotification("error", res.data);
       }
     } catch (err) {
-      createNotification("error", err.response.data.message)
+      // if 401 unauthorized, redirect to login page and delete cookie
+      if (err.response && err.response.status === 401) {
+        removeData();
+      }
 
+      createNotification("error", err.response.data.message);
     }
   };
 
@@ -164,14 +186,51 @@ export default function Api(props) {
     active.current = connection;
     // search for button with both active-button and connection-button classes
     // remove active-button class from that button
-    if(document.getElementsByClassName("active-button connection-button")[0]){
+    if (document.getElementsByClassName("active-button connection-button")[0]) {
       document
         .getElementsByClassName("active-button connection-button")[0]
         .classList.remove("active-button");
-      }
+    }
 
     // add active-button class to clicked button
     event.target.classList.add("active-button");
+  };
+
+  const handleDelete = (database, host, query) => async (e) => {
+    e.preventDefault();
+    try {
+      const res = await onDeleteData(
+        "sql/connections/" +
+          props.match.params.name +
+          "?database=" +
+          database +
+          "&host=" +
+          host +
+          "&query=" +
+          query,
+      );
+
+      if (res.status === 200) {
+        // rempve deleted connection from connections array
+        setConnections((connections) =>
+          connections.filter((connection) => {
+            return (
+              connection.database !== database ||
+              connection.host !== host ||
+              connection.query !== query
+            );
+          }),
+        );
+      } else {
+        createNotification("error", res.data);
+      }
+    } catch (err) {
+      // if 401 unauthorized, redirect to login page and delete cookie
+      if (err.response && err.response.status === 401) {
+        removeData();
+      }
+      createNotification("error", err.response.data.message);
+    }
   };
 
   return (
@@ -193,6 +252,15 @@ export default function Api(props) {
         className={page === "create" ? "active-button" : ""}
       >
         Create Connection
+      </button>
+
+      <button
+        onClick={() => {
+          setPage("delete");
+        }}
+        className={page === "delete" ? "active-button" : ""}
+      >
+        Delete Connection
       </button>
 
       {page === "dashboard" && (
@@ -246,31 +314,33 @@ export default function Api(props) {
                       <Line
                         data={{
                           labels: [
-                            "T-9",
-                            "T-8",
-                            "T-7",
-                            "T-6",
-                            "T-5",
-                            "T-4",
-                            "T-3",
-                            "T-2",
-                            "T-1",
-                            "0",
+                            // get numOfTimes and create labels counting down from numOfTimes to 0
+                            // if numOfTimes is 5, labels will be -4, -3, -2, -1, 0
+                            ...Array(active.current.numOfTimes)
+                              .fill()
+                              .map(
+                                (_, index) =>
+                                  index - active.current.numOfTimes + 1,
+                              ),
                           ],
                           datasets: [
                             {
-                              label: active.current.host,
+                              label: active.current.query,
                               data: active.current.times
                                 .split(",")
                                 .map((time) => parseInt(time)),
                               fill: false,
                               backgroundColor: "rgb(0, 99, 132)",
-                              borderColor: "rgba(0, 99, 132, 0.2)",
+                              borderColor: "rgba(0, 99, 132, 0.3)",
+                              borderJoinStyle: "round",
+                              pointRadius: 2,
                             },
                             // straight line at threshold
                             {
                               label: "Threshold",
-                              data: Array(10).fill(active.current.threshold),
+                              data: Array(active.current.numOfTimes).fill(
+                                active.current.threshold,
+                              ),
                               fill: false,
                               backgroundColor: "rgb(255, 0, 132)",
                               borderColor: "rgba(255, 0, 132, 1)",
@@ -316,7 +386,6 @@ export default function Api(props) {
         <div className="choice">
           <h3>Create Connection</h3>
           <form onSubmit={handleSubmit}>
-            
             {/* we need host, database, port, user, password and query and threshold for sql */}
 
             <input
@@ -335,15 +404,6 @@ export default function Api(props) {
               name="database"
               placeholder="Enter Database"
               onChange={handleDatabase}
-              required
-              className="form-input"
-            />
-            <input
-              type="text"
-              id="port"
-              name="port"
-              placeholder="Enter Port"
-              onChange={handlePort}
               required
               className="form-input"
             />
@@ -387,8 +447,69 @@ export default function Api(props) {
               className="form-input"
             />
 
+            <input
+              type="number"
+              value={numOfTimes}
+              onChange={handleNumOfTimes}
+              className="form-input"
+              placeholder="Number of Times"
+            />
+
             <input type="submit" value="Submit" className="form-button" />
           </form>
+        </div>
+      )}
+
+      {page === "delete" && (
+        // a list of buttons with the url of each connection. onclick we delete that connection
+        // from the database
+
+        <div className="choice">
+          <h3>Delete Connection</h3>
+
+          {loading && (
+            <Dna
+              visible={true}
+              height="80"
+              width="80"
+              ariaLabel="dna-loading"
+              wrapperStyle={{}}
+              wrapperClass="dna-wrapper"
+              className="connections"
+            />
+          )}
+
+          {!loading && !connections && (
+            <>
+              <br />
+              <p>No Connection in Workspace</p>
+            </>
+          )}
+
+          {!loading && (
+            <div className="delete-connections">
+              <div className="delete-connection">
+                {connections &&
+                  connections.map((connection, index) => (
+                    <button
+                      key={index}
+                      onClick={handleDelete(
+                        connection.database,
+                        connection.host,
+                        connection.query,
+                      )}
+                      className="connection-button"
+                    >
+                      {connection.database +
+                        " - " +
+                        connection.query +
+                        " - " +
+                        connection.host}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 version: "3"
 services:
   mongodb:
-    image: sbk2k1/hm_mongo
+    image: mongo
     restart: always
     networks:
       - my-network
@@ -9,7 +9,7 @@ services:
       - mongodb_data:/data/db
 
   node-backend:
-    image: sbk2k1/hm_node
+    image: sbk2k1/health_monitor_backend
     expose:
       - ${PORT}
     ports:
@@ -25,7 +25,7 @@ services:
       - mongodb
 
   react-frontend:
-    image: sbk2k1/hm_react
+    image: sbk2k1/health_monitor_frontend
     ports:
       - 1234:3000
     expose:

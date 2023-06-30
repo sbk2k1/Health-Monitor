@@ -3,7 +3,7 @@ import { Link, Redirect } from "react-router-dom";
 import { onPostData, setData } from "../../api";
 import "./register.css";
 
-// notification 
+// notification
 import { useNotifications } from "../..../../../context/NotificationContext";
 
 export default function Register() {
@@ -32,8 +32,8 @@ export default function Register() {
         alert(res.data.message);
       }
     } catch (err) {
-      console.log(err)
-      createNotification("error", "Username already exists!", "Error")
+      console.log(err);
+      createNotification("error", "Username already exists!", "Error");
     }
   };
 

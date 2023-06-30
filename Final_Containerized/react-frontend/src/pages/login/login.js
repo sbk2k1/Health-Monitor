@@ -3,7 +3,7 @@ import { Link, Redirect } from "react-router-dom";
 import { onPostData, setData } from "../../api";
 import "./login.css";
 
-// notification 
+// notification
 import { useNotifications } from "../..../../../context/NotificationContext";
 
 export default function Login() {
@@ -14,7 +14,6 @@ export default function Login() {
 
   // notification
   const { createNotification } = useNotifications();
-
 
   // handle login
   const handleLogin = async (e) => {
@@ -27,7 +26,7 @@ export default function Login() {
         setRedirect(true);
       }
     } catch (err) {
-      createNotification("error", "No such Registered User", "Error")
+      createNotification("error", "No such Registered User", "Error");
     }
   };
 

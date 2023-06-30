@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Redirect, Link } from "react-router-dom";
-import { onGetData, onPostData, isUser, onDeleteData } from "../../../api";
+import {
+  onGetData,
+  onPostData,
+  isUser,
+  onDeleteData,
+  removeData,
+} from "../../../api";
 import "./api.css";
 const { useNotifications } = require("../../../context/NotificationContext");
 
@@ -35,6 +41,10 @@ export default function Api() {
       }
     } catch (err) {
       if (err.request) {
+        // if 401 unauthorized, redirect to login page and delete cookie
+        if (err.response && err.response.status === 401) {
+          removeData();
+        }
         createNotification("error", "Server is not responding", "Error");
       }
     }
@@ -63,7 +73,10 @@ export default function Api() {
         window.location.reload();
       }
     } catch (err) {
-      console.log(err);
+      if (err.response && err.response.status === 401) {
+        removeData();
+      }
+      createNotification("error", err.response.data.message);
     }
   };
 
@@ -73,18 +86,21 @@ export default function Api() {
       const workspaceName = e.target.id;
       const data = await onDeleteData("api/workspaces/" + workspaceName);
       // remove workspace from workspaces
-      setWorkspaces((workspaces) => workspaces.filter((w) => w.name !== workspaceName));
+      setWorkspaces((workspaces) =>
+        workspaces.filter((w) => w.name !== workspaceName),
+      );
       createNotification("success", "Workspace deleted");
     } catch (err) {
       // if status 400
-      if (err.response.status === 400) {
+      if (err.response && err.response.status === 401) {
+        removeData();
+      } else if (err.response.status === 400) {
         createNotification("error", "Workspace has existing Connections!");
       } else {
         createNotification("error", "Server is not responding");
       }
     }
   };
-
 
   return (
     <div className="text-center">
@@ -166,11 +182,14 @@ export default function Api() {
 
           {workspaces &&
             workspaces.map((workspace) => (
-              <button id={workspace.name} key={workspace.name} onClick={handleDeleteWorkspace}>
+              <button
+                id={workspace.name}
+                key={workspace.name}
+                onClick={handleDeleteWorkspace}
+              >
                 {workspace.name}
               </button>
             ))}
-
         </div>
       )}
     </div>
