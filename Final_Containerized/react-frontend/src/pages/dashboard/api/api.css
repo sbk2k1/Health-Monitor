@@ -132,3 +132,8 @@ button:focus {
   text-align: left;
   padding-left: 10%;
 }
+
+.delete-connection button{
+  margin-top: 15px;
+  width: 25%;
+}

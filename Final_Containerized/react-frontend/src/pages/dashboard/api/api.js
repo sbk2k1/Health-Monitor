@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Redirect } from "react-router-dom";
-import { onGetData, isUser, onPostData } from "../../../api";
+import { onGetData, isUser, onPostData, onDeleteData } from "../../../api";
 import { useNotifications } from "../../../context/NotificationContext";
 import "./api.css";
 import { Line } from "react-chartjs-2";
-import { Dna,  } from "react-loader-spinner";
+import { Dna, } from "react-loader-spinner";
 
 export default function Api(props) {
   const [logout, setLogout] = useState(false);
@@ -70,7 +70,7 @@ export default function Api(props) {
           }
         }
         setLoading(false);
-      } else if (res.status === 400) { 
+      } else if (res.status === 400) {
         createNotification("Connection Already exists");
         // refresh page
         window.location.reload();
@@ -82,7 +82,7 @@ export default function Api(props) {
       if (
         err.response &&
         err.response.data.message ===
-          "Cannot read properties of null (reading '_id')"
+        "Cannot read properties of null (reading '_id')"
       ) {
         createNotification("error", "No Such Workspace Found", "Error");
         setRedirect("/workspaces/api");
@@ -139,10 +139,10 @@ export default function Api(props) {
         createNotification("error", res.data);
       }
 
-      
+
 
     } catch (err) {
-      
+
       createNotification("error", err.response.data.message)
 
     }
@@ -152,14 +152,32 @@ export default function Api(props) {
     active.current = connection;
     // search for button with both active-button and connection-button classes
     // remove active-button class from that button
-    if(document.getElementsByClassName("active-button connection-button")[0]){
-    document
-      .getElementsByClassName("active-button connection-button")[0]
-      .classList.remove("active-button");
+    if (document.getElementsByClassName("active-button connection-button")[0]) {
+      document
+        .getElementsByClassName("active-button connection-button")[0]
+        .classList.remove("active-button");
     }
 
     // add active-button class to clicked button
     event.target.classList.add("active-button");
+  };
+
+  const handleDelete = (url, requestType) => async (e) => {
+    e.preventDefault();
+    try {
+      const res = await onDeleteData(
+        "api/connections/" + props.match.params.name + "?url=" + url + "&method=" + requestType
+      );
+
+      if (res.status === 200) {
+        // rempve deleted connection from connections array
+        setConnections((connections) => connections.filter((connection) => connection.url !== url));
+      } else {
+        createNotification("error", res.data);
+      }
+    } catch (err) {
+      createNotification("error", err.response.data.message);
+    }
   };
 
   return (
@@ -181,6 +199,14 @@ export default function Api(props) {
         className={page === "create" ? "active-button" : ""}
       >
         Create Connection
+      </button>
+      <button
+        onClick={() => {
+          setPage("delete");
+        }}
+        className={page === "delete" ? "active-button" : ""}
+      >
+        Delete Connection
       </button>
 
       {page === "dashboard" && (
@@ -349,6 +375,51 @@ export default function Api(props) {
 
             <input type="submit" value="Submit" className="form-button" />
           </form>
+        </div>
+      )}
+
+      {page === "delete" && (
+        // a list of buttons with the url of each connection. onclick we delete that connection
+        // from the database
+
+        <div className="choice">
+          <h3>Delete Connection</h3>
+
+          {loading && (
+            <Dna
+              visible={true}
+              height="80"
+              width="80"
+              ariaLabel="dna-loading"
+              wrapperStyle={{}}
+              wrapperClass="dna-wrapper"
+              className="connections"
+            />
+          )}
+
+          {!loading && !connections && (
+            <>
+              <br />
+              <p>No Connection in Workspace</p>
+            </>
+          )}
+
+          {!loading && (
+            <div className="delete-connections">
+              <div className="delete-connection">
+                {connections &&
+                  connections.map((connection, index) => (
+                    <button
+                      key={index}
+                      onClick={handleDelete(connection.url, connection.requestType)}
+                      className="connection-button"
+                    >
+                      {connection.url}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

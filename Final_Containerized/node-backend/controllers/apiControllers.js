@@ -95,7 +95,54 @@ const createConnection = async (req, res) => {
     }
 };
 
+const deleteConnection = async (req, res) => {
 
+    console.log("here");
+
+    try {
+        const workspace = await WorkspaceApi.findOne({ name: req.params.workspace });
+        const workspaceId = workspace._id;
+
+        const connection = await ConnectionApi.findOne({
+            workspace: new mongoose.Types.ObjectId(workspaceId),
+            url: req.query.url,
+            requestType: req.query.method,
+        });
+
+        if (!connection) {
+            return res.status(400).json({ message: "Connection does not exist" });
+        }
+
+        await connection.deleteOne();
+
+        res.status(200).json({ message: "Connection deleted" });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+const deleteWorkspace = async (req, res) => {
+    try {
+        var workspace = await WorkspaceApi.findOne({ name: req.params.name });
+        workspace = workspace._id;
+
+        // if there are connections in the workspace donot delete
+
+        const connections = await ConnectionApi.find({ workspace: workspace });
+
+        if (connections.length > 0) {
+            return res.status(400).json({ message: "Workspace has connections" });
+        }
+
+        await WorkspaceApi.deleteOne({ _id: workspace });
+
+        res.status(200).json({ message: "Workspace deleted" });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 
 
 
@@ -104,5 +151,7 @@ module.exports = {
     getWorkspaceByName,
     createWorkspace,
     getConnections,
-    createConnection
+    createConnection,
+    deleteConnection,
+    deleteWorkspace
 }

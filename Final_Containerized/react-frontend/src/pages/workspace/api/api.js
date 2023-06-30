@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Redirect, Link } from "react-router-dom";
-import { onGetData, onPostData, isUser } from "../../../api";
+import { onGetData, onPostData, isUser, onDeleteData } from "../../../api";
 import "./api.css";
 const { useNotifications } = require("../../../context/NotificationContext");
 
@@ -50,18 +50,41 @@ export default function Api() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = await onPostData("api/workspaces", {
-      name: name,
-    });
+    try {
+      e.preventDefault();
+      const data = await onPostData("api/workspaces", {
+        name: name,
+      });
 
-    if (data.error) {
-      createNotification("error", data.error);
-    } else {
-      // reload
-      window.location.reload();
+      if (data.error) {
+        createNotification("error", data.error);
+      } else {
+        // reload
+        window.location.reload();
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
+
+  const handleDeleteWorkspace = async (e) => {
+    try {
+      e.preventDefault();
+      const workspaceName = e.target.id;
+      const data = await onDeleteData("api/workspaces/" + workspaceName);
+      // remove workspace from workspaces
+      setWorkspaces((workspaces) => workspaces.filter((w) => w.name !== workspaceName));
+      createNotification("success", "Workspace deleted");
+    } catch (err) {
+      // if status 400
+      if (err.response.status === 400) {
+        createNotification("error", "Workspace has existing Connections!");
+      } else {
+        createNotification("error", "Server is not responding");
+      }
+    }
+  };
+
 
   return (
     <div className="text-center">
@@ -78,6 +101,12 @@ export default function Api() {
         className={page === "select" ? "active-button" : ""}
       >
         Choose a workspace
+      </button>
+      <button
+        onClick={() => setPage("delete")}
+        className={page === "delete" ? "active-button" : ""}
+      >
+        Delete a workspace
       </button>
 
       {page === "select" && (
@@ -119,6 +148,29 @@ export default function Api() {
               Create Workspace
             </button>
           </form>
+        </div>
+      )}
+
+      {page === "delete" && (
+        <div className="text-center choice">
+          <br />
+          <h3>Delete API Workspace</h3>
+          {/* buttons with all workspaces like in choose workspaces. onclick will delete using api */}
+
+          {!workspaces && (
+            <>
+              <br />
+              <p>You don't have any workspaces</p>
+            </>
+          )}
+
+          {workspaces &&
+            workspaces.map((workspace) => (
+              <button id={workspace.name} key={workspace.name} onClick={handleDeleteWorkspace}>
+                {workspace.name}
+              </button>
+            ))}
+
         </div>
       )}
     </div>

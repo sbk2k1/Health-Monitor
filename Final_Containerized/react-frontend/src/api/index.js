@@ -55,6 +55,32 @@ export const onPostData = async (url, data) => {
   }
 };
 
+export const onDeleteData = async (url) => {
+  // get token from cookie named token and set in header
+
+
+  if (!cookies.get("data")) {
+    return await axios.delete("http://localhost:6969/" + url, {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Methods": "DELETE"
+      },
+    });
+  } else {
+    const token = cryptoDecrypt(cookies.get("data")).token;
+    console.log("here")
+    console.log(token)
+    // fire post request
+    return await axios.delete("http://localhost:6969/" + url, {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Methods": "DELETE",
+        Authorization: "Bearer " + token,
+      },
+    });
+  }
+};
+
 export const onPostFormData = async (url, data) => {
   // get token from cookie named data and set in header
 
@@ -138,14 +164,14 @@ export const setData = (data) => {
 
 // check if user is logged in
 export const isUser = () => {
-    if (cookies.get("data")) {
-      const data = cryptoDecrypt(cookies.get("data"));
-      if (data) {
-        return data;
-      } else {
-        return false;
-      }
+  if (cookies.get("data")) {
+    const data = cryptoDecrypt(cookies.get("data"));
+    if (data) {
+      return data;
     } else {
       return false;
     }
+  } else {
+    return false;
+  }
 };
