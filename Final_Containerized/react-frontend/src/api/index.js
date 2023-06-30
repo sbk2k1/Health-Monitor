@@ -6,6 +6,10 @@ const cookies = new Cookies();
 
 // encrypt data
 // encrypt data
+
+
+
+
 export const cryptoEncrypt = (data) => {
 
   console.log(process.env.REACT_APP_ACCESS_TOKEN_SECRET)
@@ -31,7 +35,7 @@ export const onPostData = async (url, data) => {
   console.log(cookies.get("data"))
 
   if (!cookies.get("data")) {
-    return await axios.post("/" + url, data, {
+    return await axios.post("http://localhost:6969/" + url, data, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "POST",
@@ -41,7 +45,7 @@ export const onPostData = async (url, data) => {
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire post request
-    return await axios.post("/" + url, data, {
+    return await axios.post("http://localhost:6969/" + url, data, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "POST",
@@ -55,7 +59,7 @@ export const onPostFormData = async (url, data) => {
   // get token from cookie named data and set in header
 
   if (!cookies.get("data")) {
-    return await axios.post("/" + url, data, {
+    return await axios.post("http://localhost:6969/" + url, data, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Access-Control-Allow-Methods": "POST",
@@ -65,7 +69,7 @@ export const onPostFormData = async (url, data) => {
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire post request
-    return await axios.post("/" + url, data, {
+    return await axios.post("http://localhost:6969/" + url, data, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Access-Control-Allow-Methods": "POST",
@@ -78,7 +82,7 @@ export const onPostFormData = async (url, data) => {
 export const onGetData = async (url) => {
   // get token from cookie named token and set in header
   if (!cookies.get("data")) {
-    return await axios.get("/" + url, {
+    return await axios.get("http://localhost:6969/" + url, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
@@ -88,7 +92,7 @@ export const onGetData = async (url) => {
     const token = cryptoDecrypt(cookies.get("data")).token;
 
     // fire get request
-    return await axios.get("/" + url, {
+    return await axios.get("http://localhost:6969/" + url, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",

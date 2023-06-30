@@ -22,6 +22,6 @@ router.post('/workspaces', auth,  apiControllers.createWorkspace);
 
 // connection routes
 router.get('/connections/:workspace', auth,  apiControllers.getConnections);
-router.post('/connections/:workspace',   apiControllers.createConnection);
+router.post('/connections/:workspace', auth,  apiControllers.createConnection);
 
 module.exports = router;

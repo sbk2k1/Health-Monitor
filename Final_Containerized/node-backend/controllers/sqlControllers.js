@@ -1,6 +1,7 @@
 const express = require('express');
 const {WorkspaceSql} = require('../models/workspace');
 const {ConnectionSql} = require('../models/connection');
+const { mongo } = require('mongoose');
 
 // Add SQL endpoint routes here
 
@@ -48,6 +49,20 @@ const createWorkspace = async (req, res) => {
 // connection routes
 
 const getConnections = async (req, res) => {
+
+    // no existing sql connection with same server, db, table, and query
+
+    const connection = await WorkspaceSql.find({ 
+        name: req.params.workspace,
+        host: req.body.host,
+        database: req.body.database,
+        query: req.body.query
+     });
+
+    if (connection) {
+        return res.status(409).json({ message: 'Connection already exists' });
+    }
+
     try {
         var workspace = await WorkspaceSql.findOne({ name: req.params.workspace });
         var workspaceId = workspace._id;
@@ -63,7 +78,16 @@ const createConnection = async (req, res) => {
         var workspace = req.params.workspace;
         var workspaceId = await WorkspaceSql.findOne({ name: workspace });
 
-        console.log(req.body);
+        const exists = await ConnectionSql.findOne({
+            workspace: new mongoose.Types.ObjectId(workspaceId),
+            host: req.body.host,
+            database: req.body.database,
+            query: req.body.query
+        });
+
+        if (exists) {
+            return res.status(400).json({ message: "Connection already exists" });
+        }
 
     const connection = new ConnectionSql({
         host: req.body.host,
@@ -73,6 +97,7 @@ const createConnection = async (req, res) => {
         database: req.body.database,
         workspace: workspaceId,
         threshold: Number(req.body.threshold),
+        numOfTimes: Number(req.body.numOfTimes),
         query: req.body.query
     });
     const newConnection = await connection.save();

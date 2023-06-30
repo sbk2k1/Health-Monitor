@@ -25,6 +25,10 @@ const ConnectionApiSchema = new mongoose.Schema({
     statusCode: String,
     responseSize: String,
     lastChecked: String,
+    numOfTimes: {
+        type: Number,
+        default: 1440,
+    },
 });
 
 // Define Connection schema for SQL
@@ -62,6 +66,10 @@ const ConnectionSqlSchema = new mongoose.Schema({
     statusCode: String,
     responseSize: String,
     lastChecked: String,
+    numOfTimes: {
+        type: Number,
+        default: 1440,
+    },
 });
 
 // Export both API and SQL connection models

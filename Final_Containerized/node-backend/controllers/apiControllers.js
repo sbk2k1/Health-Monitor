@@ -1,6 +1,6 @@
-const express = require('express');
 const { WorkspaceApi } = require('../models/workspace');
 const { ConnectionApi } = require('../models/connection');
+const { default: mongoose } = require('mongoose');
 
 // Add API Controllers here
 
@@ -17,7 +17,7 @@ const { ConnectionApi } = require('../models/connection');
 
 const getWorkspaces = async (req, res) => {
     try {
-        const workspaces = await WorkspaceApi.find({user: req.user.username});
+        const workspaces = await WorkspaceApi.find({ user: req.user.username });
         res.status(200).json(workspaces);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -53,7 +53,7 @@ const getConnections = async (req, res) => {
     try {
         var workspace = await WorkspaceApi.findOne({ name: req.params.workspace });
         var workspaceId = workspace._id;
-        const connections = await ConnectionApi.find({ workspace: workspaceId});
+        const connections = await ConnectionApi.find({ workspace: workspaceId });
         res.status(200).json(connections);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -63,16 +63,30 @@ const getConnections = async (req, res) => {
 const createConnection = async (req, res) => {
     try {
 
+        
+
         // take care of %20 in workspace name
         var workspace = req.params.workspace;
 
         workspace = await WorkspaceApi.findOne({ name: workspace });
         var workspaceId = workspace._id;
+
+        const exists = await ConnectionApi.findOne({
+            workspace: new mongoose.Types.ObjectId(workspaceId),
+            url: req.body.url,
+            requestType: req.body.requestType,
+        });
+
+        if (exists) {
+            return res.status(400).json({ message: "Connection already exists" });
+        }
+
         const connection = new ConnectionApi({
             url: req.body.url,
             requestType: req.body.requestType,
             workspace: workspaceId,
             threshold: Number(req.body.threshold),
+            numOfTimes: Number(req.body.numOfTimes),
         });
         const newConnection = await connection.save();
         res.status(201).json(newConnection);

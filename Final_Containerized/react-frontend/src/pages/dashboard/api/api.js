@@ -14,6 +14,7 @@ export default function Api(props) {
   const [method, setMethod] = useState("");
   const [threshold, setThreshold] = useState(null);
   const [page, setPage] = useState("dashboard");
+  const [numOfTimes, setNumOfTimes] = useState(null);
 
   // loader
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,12 @@ export default function Api(props) {
           }
         }
         setLoading(false);
-      } else {
+      } else if (res.status === 400) { 
+        createNotification("Connection Already exists");
+        // refresh page
+        window.location.reload();
+      }
+      else {
         createNotification("error", res.data);
       }
     } catch (err) {
@@ -109,6 +115,11 @@ export default function Api(props) {
     setThreshold(e.target.value);
   };
 
+  const handleNumOfTimes = (e) => {
+    e.preventDefault();
+    setNumOfTimes(e.target.value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -118,6 +129,7 @@ export default function Api(props) {
           url: url,
           requestType: method,
           threshold: threshold,
+          numOfTimes: numOfTimes,
         },
       );
 
@@ -126,8 +138,13 @@ export default function Api(props) {
       } else {
         createNotification("error", res.data);
       }
+
+      
+
     } catch (err) {
-      console.log(err);
+      
+      createNotification("error", err.response.data.message)
+
     }
   };
 
@@ -217,16 +234,12 @@ export default function Api(props) {
                       <Line
                         data={{
                           labels: [
-                            "T-9",
-                            "T-8",
-                            "T-7",
-                            "T-6",
-                            "T-5",
-                            "T-4",
-                            "T-3",
-                            "T-2",
-                            "T-1",
-                            "0",
+                            // get numOfTimes and create labels counting down from numOfTimes to 0
+                            // if numOfTimes is 5, labels will be -4, -3, -2, -1, 0
+                            ...Array(active.current.numOfTimes)
+                              .fill()
+                              .map((_, index) => index - active.current.numOfTimes + 1),
+
                           ],
                           datasets: [
                             {
@@ -236,12 +249,14 @@ export default function Api(props) {
                                 .map((time) => parseInt(time)),
                               fill: false,
                               backgroundColor: "rgb(0, 99, 132)",
-                              borderColor: "rgba(0, 99, 132, 0.2)",
+                              borderColor: "rgba(0, 99, 132, 0.3)",
+                              borderJoinStyle: "round",
+                              pointRadius: 2,
                             },
                             // straight line at threshold
                             {
                               label: "Threshold",
-                              data: Array(10).fill(active.current.threshold),
+                              data: Array(active.current.numOfTimes).fill(active.current.threshold),
                               fill: false,
                               backgroundColor: "rgb(255, 0, 132)",
                               borderColor: "rgba(255, 0, 132, 1)",
@@ -322,6 +337,14 @@ export default function Api(props) {
               onChange={handleThreshold}
               className="form-input"
               placeholder="Threshold"
+            />
+
+            <input
+              type="number"
+              value={numOfTimes}
+              onChange={handleNumOfTimes}
+              className="form-input"
+              placeholder="Number of Times"
             />
 
             <input type="submit" value="Submit" className="form-button" />

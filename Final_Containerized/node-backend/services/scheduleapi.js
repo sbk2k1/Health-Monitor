@@ -39,7 +39,7 @@ schedule.scheduleJob('*/10 * * * * *', async () => {
                 time = responseTime;
             }
             // when there is not , in the times
-            else if (connection.times.split(',').length < 10) {
+            else if (connection.times.split(',').length < connection.numOfTimes) {
                 // add error to the end of the array
                 time = connection.times + ',' + responseTime;
             }
@@ -68,7 +68,7 @@ schedule.scheduleJob('*/10 * * * * *', async () => {
                 time = "error";
             }
             // when there is not , in the times
-            else if (connection.times.split(',').length < 10) {
+            else if (connection.times.split(',').length < connection.numOfTimes) {
                 // add error to the end of the array
                 // console.log(connection.times);
                 time = connection.times + ',' + "error";

@@ -155,7 +155,8 @@ export default function Api(props) {
         createNotification("error", res.data);
       }
     } catch (err) {
-      console.log(err);
+      createNotification("error", err.response.data.message)
+
     }
   };
 
