@@ -26,6 +26,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - PORT=${PORT}
       - MONGO_DB_URL=${MONGO_DB_URL}
+      - API_INTERVAL=${API_INTERVAL}
+      - SQL_INTERVAL=${SQL_INTERVAL}
       
   react-frontend:
     build:

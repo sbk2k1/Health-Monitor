@@ -10,7 +10,11 @@ axios.interceptors.request.use(x => {
     return x;
 })
 
-schedule.scheduleJob('*/10 * * * * *', async () => {
+// check uptime every 5 minutes
+// therefore the string should be '5 * * * * *'
+// for 10 minutes the string should be '10 * * * * *'
+
+schedule.scheduleJob(process.env.API_INTERVAL, async () => {
 
     // send connection to each connection
 

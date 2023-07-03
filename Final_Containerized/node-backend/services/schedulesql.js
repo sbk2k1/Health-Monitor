@@ -2,7 +2,7 @@ const schedule = require('node-schedule');
 const sql = require('mysql');
 const { ConnectionSql } = require('../models/connection');
 
-schedule.scheduleJob('*/10 * * * * *', async () => {
+schedule.scheduleJob(process.env.SQL_INTERVAL, async () => {
   try {
     const connections = await ConnectionSql.find({});
     
